@@ -12,4 +12,14 @@ class Recipe {
     required this.rating,
     required this.author,
   });
+
+  factory Recipe.fromJson(Map<String, dynamic> json) {
+    return Recipe(
+      title: json['title'] as String,
+      image: json['image'] as String,
+      time: (json['time'] as num).toInt(),
+      rating: (json['rating'] as num).toDouble(),
+      author: json['author'] as String,
+    );
+  }
 }

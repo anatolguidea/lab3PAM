@@ -1,161 +1,80 @@
 import 'package:flutter/material.dart';
-import '../models/new_recipe.dart';
-import '../models/recipe.dart';
+import 'package:get/get.dart';
+
+import '../controllers/home_controller.dart';
 import '../widgets/header_widget.dart';
 import '../widgets/menu_bar_widget.dart';
 import '../widgets/new_recipe_card.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/search_bar_widget.dart';
 
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
+class HomeScreen extends StatelessWidget {
+  HomeScreen({super.key});
 
-class _HomeScreenState extends State<HomeScreen> {
-  int selectedCategory = 0;
-
-  final List<String> categories = ['All', 'Indian', 'Italian', 'Asian', 'Chinese'];
-
-  final List<Recipe> recipes = [
-    Recipe(
-        title: 'Classic Greek Salad',
-        image: 'assets/images/classic_greek_salad.png',
-        time: 15,
-        rating: 4.5,
-        author: 'John Doe'),
-    Recipe(
-        title: 'Crunchy Nut Coleslaw',
-        image: 'assets/images/crunchy_nut_coleslaw.png',
-        time: 10,
-        rating: 3.5,
-        author: 'Jane Doe'),
-    Recipe(
-        title: 'Shrimp chicken Andouille',
-        image: 'assets/images/card3.png',
-        time: 10,
-        rating: 3.0,
-        author: 'John Doe'),
-    Recipe(
-        title: 'Barbeque Chicken Jollof...',
-        image: 'assets/images/card4.png',
-        time: 10,
-        rating: 4.5,
-        author: 'Jane Doe'),
-    Recipe(
-        title: 'Portuguese Piri Piri Chicken',
-        image: 'assets/images/card5.png',
-        time: 10,
-        rating: 4.5,
-        author: 'Jane Doe')
-  ];
-
-  final List<NewRecipe> newRecipes = [
-    NewRecipe(
-      title: 'Steak with tomato sauce and bulgur rice.',
-      recipeImage: 'assets/images/steak_with_tomato.png',
-      userImage: 'assets/images/profile1.png',
-      userName: 'James Milner',
-      rating: 4,
-      time: '15 mins',
-    ),
-    NewRecipe(
-      title: 'Crunchy Nut Coleslaw',
-      recipeImage: 'assets/images/crunchy_nut_coleslaw.png',
-      userImage: 'assets/images/profile2.png',
-      userName: 'Laura Wilson',
-      rating: 5,
-      time: '15 mins',
-    ),
-    NewRecipe(
-      title: 'Rice Pilaf, Broccoli and Chicken',
-      recipeImage: 'assets/images/new_recipe_3.png',
-      userImage: 'assets/images/profile2.png',
-      userName: 'Lucas Maura',
-      rating: 5,
-      time: '20 mins',
-    ),
-    NewRecipe(
-      title: 'Chicken meal with sauce',
-      recipeImage: 'assets/images/new_recipe_4.png',
-      userImage: 'assets/images/profile2.png',
-      userName: 'Issabela Ethan',
-      rating: 5,
-      time: '20 mins',
-    ),
-    NewRecipe(
-      title: 'Stir-fry chicken with broccoli in sweet and sour sauce and rice.',
-      recipeImage: 'assets/images/new_recipe_5.png',
-      userImage: 'assets/images/profile2.png',
-      userName: 'Miquel Ferron',
-      rating: 5,
-      time: '20 mins',
-    )
-  ];
-
+  final HomeController controller = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold( // un widget principal al paginii (Scheletul paginii)
-      body: SafeArea( // protejeaza continutul de regiunile speciale ale ecranului
+    return Scaffold(
+      body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(left: 30, right: 30, top: 40),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,//alinierea elementelor de-a lungul axei „secundare”
-            children: [
+          child: Obx(() {
+            if (controller.isLoading.value) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (controller.error.isNotEmpty) {
+              return Center(child: Text('Error: ${controller.error}'));
+            }
 
-              HeaderWidget(),
-
-              SizedBox(height: 40),
-
-              CustomSearchBar(),
-
-              SizedBox(height: 20),
-
-              MenuSelector(),
-
-              SizedBox(height: 20),
-
-              //lista de recipe carduri
-              SizedBox(
-                height: 226, // cardHeight = 176 + 50
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  clipBehavior: Clip.none, // permite overflow-ul imaginilor
-                  padding: EdgeInsets.only(top: 50),
-                  itemCount: recipes.length,
-                  itemBuilder: (context, index) {
-                    return RecipeCard(recipe: recipes[index]);
-                  },
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HeaderWidget(),
+                const SizedBox(height: 40),
+                const CustomSearchBar(),
+                const SizedBox(height: 20),
+                MenuSelector(
+                  categories: controller.categories,
+                  selectedIndex: controller.selectedCategory.value,
+                  onSelect: controller.selectCategory,
                 ),
-              ),
-
-
-              SizedBox(height: 20),
-
-              Text(
-                'New Recipes',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-
-              SizedBox(height: 40),
-              //lista de new recipe carduri
-              SizedBox(
-                height: 95 + 60 / 2,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  clipBehavior: Clip.none,
-                  itemCount: newRecipes.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: NewRecipeCard(recipe: newRecipes[index]),
-                    );
-                  },
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: 226,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
+                    padding: const EdgeInsets.only(top: 50),
+                    itemCount: controller.recipes.length,
+                    itemBuilder: (context, index) {
+                      return RecipeCard(recipe: controller.recipes[index]);
+                    },
+                  ),
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(height: 20),
+                const Text(
+                  'New Recipes',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  height: 95 + 60 / 2,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
+                    itemCount: controller.newRecipes.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: NewRecipeCard(recipe: controller.newRecipes[index]),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          }),
         ),
       ),
     );

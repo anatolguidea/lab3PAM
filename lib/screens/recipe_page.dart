@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/ingredient.dart';
+import 'package:get/get.dart';
+
+import '../controllers/recipe_controller.dart';
 import '../widgets/ingredient_list.dart';
 import '../widgets/ingredient_tab.dart';
 import '../widgets/profile_recipe.dart';
@@ -11,23 +13,7 @@ class RecipePage extends StatelessWidget {
   final NewRecipe recipe;
 
   RecipePage({required this.recipe, super.key});
-
-  final List<Ingredient> ingredients = [
-    Ingredient(title: 'Tomatoes', imagePath: 'assets/images/tomato.png', quantity: '500g'),
-    Ingredient(title: 'Cabbage', imagePath: 'assets/images/cabbage.png', quantity: '300g'),
-    Ingredient(title: 'Taco', imagePath: 'assets/images/taco.png', quantity: '200g'),
-    Ingredient(title: 'Slice bread', imagePath: 'assets/images/slice_bread.png', quantity: '100g'),
-    Ingredient(title: 'Green onion', imagePath: 'assets/images/ingredient5.png', quantity: '300g'),
-    Ingredient(title: 'Omelette', imagePath: 'assets/images/ingredient6.png', quantity: '300g'),
-    Ingredient(title: 'Hot Dog', imagePath: 'assets/images/ingredient7.png', quantity: '300g'),
-    Ingredient(title: 'Onion', imagePath: 'assets/images/ingredient8.png', quantity: '300g'),
-    Ingredient(title: 'Lettuce', imagePath: 'assets/images/ingredient9.png', quantity: '300g'),
-    Ingredient(title: 'Spinach', imagePath: 'assets/images/ingredient10.png', quantity: '300g'),
-    Ingredient(title: 'Red & Green Chilli', imagePath: 'assets/images/ingredient11.png', quantity: '300g'),
-    Ingredient(title: 'Fries', imagePath: 'assets/images/ingredient12.png', quantity: '300g'),
-    Ingredient(title: 'Chicken', imagePath: 'assets/images/ingredient13.png', quantity: '300g'),
-    Ingredient(title: 'Burger', imagePath: 'assets/images/ingredient14.png', quantity: '300g'),
-  ];
+  final RecipeController controller = Get.put(RecipeController());
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +22,15 @@ class RecipePage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.only(left: 30, right: 30, top: 40),
           child: SingleChildScrollView(
-            child: Column(
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (controller.error.isNotEmpty) {
+                return Center(child: Text('Error: ${controller.error}'));
+              }
+
+              return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Back arrow
@@ -77,7 +71,7 @@ class RecipePage extends StatelessWidget {
 
                 // Lista ingredientelor
                 Column(
-                  children: ingredients.map((ingredient) {
+                  children: controller.ingredients.map((ingredient) {
                     return IngredientList(
                       imagePath: ingredient.imagePath,
                       title: ingredient.title,
@@ -86,7 +80,8 @@ class RecipePage extends StatelessWidget {
                   }).toList(),
                 ),
               ],
-            ),
+              );
+            }),
           ),
         ),
       ),

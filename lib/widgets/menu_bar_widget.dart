@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 
-class MenuSelector extends StatefulWidget {
-  const MenuSelector({super.key});
+class MenuSelector extends StatelessWidget {
+  final List<String> categories;
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
 
-  @override
-  _MenuSelectorState createState() => _MenuSelectorState();
-}
+  const MenuSelector({
+    super.key,
+    required this.categories,
+    required this.selectedIndex,
+    required this.onSelect,
+  });
 
-class _MenuSelectorState extends State<MenuSelector> {
-  final List<String> categories = ['All', 'Indian', 'Italian', 'Asian', 'Chinese'];
-  int selectedIndex = 0;
   static const Color activeGreen = Color(0xFF129575);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 35,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -23,11 +25,7 @@ class _MenuSelectorState extends State<MenuSelector> {
           final bool selected = index == selectedIndex;
 
           return GestureDetector(
-            onTap: () {
-              setState(() {
-                selectedIndex = index;
-              });
-            },
+            onTap: () => onSelect(index),
             child: Container(
               alignment: Alignment.center,
               margin: const EdgeInsets.only(right: 12),
