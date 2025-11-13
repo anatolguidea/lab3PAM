@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 
-import '../data/recipe_repository.dart';
+import '../repository/recipe_repository.dart';
 import '../models/ingredient.dart';
 
 class RecipeController extends GetxController {

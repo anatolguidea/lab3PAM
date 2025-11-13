@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 
-import '../data/home_repository.dart';
+import '../repository/home_repository.dart';
 import '../models/new_recipe.dart';
 import '../models/recipe.dart';
 
